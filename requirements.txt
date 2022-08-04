@@ -1,0 +1,15 @@
+jupyter
+matplotlib
+numpy
+ipykernel
+scikit-learn
+scipy
+nltk
+gensim
+tqdm
+docopt
+torch
+torchvision
+sentencepiece
+sacrebleu
+tensorboard
