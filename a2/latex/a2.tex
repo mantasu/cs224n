@@ -1,4 +1,4 @@
-    \documentclass{article}
+\documentclass{article}
 
 \newif\ifanswers
 \answerstrue % comment out to hide answers
@@ -102,7 +102,7 @@
 
 \newcommand{\hmwkTitle}{word2vec (48 Points)} % Assignment title
 \newcommand{\hmwkClass}{CS\ 224n Assignment \#2} % Course/class
-%\newcommand{\hmwkAuthorName}{Abigail See, Sahil Chopra} % Your name
+\newcommand{\hmwkAuthorName}{mantasu} % Your name
 
 \newcommand{\ifans}[1]{\ifanswers \color{red} \vspace{5mm} \textbf{Solution: } #1 \color{black} \vspace{5mm} \fi}
 
@@ -184,7 +184,7 @@ Prove that the naive-softmax loss (Equation \ref{naive-softmax}) is the same as 
 Your answer should be one line. You may describe your answer in words.
 \begin{shaded}
 \begin{answer}
-
+$\mathbf{y}_w$ is a one-hot vector with a $1$ for the true outside word $o$, and $0$ everywhere else. Thus all the sum terms whenever $w\ne o$ are zeros.
 \end{answer}
 \end{shaded}
 
@@ -199,7 +199,26 @@ Your answer should be one line. You may describe your answer in words.
 
 
 \begin{shaded}
-\begin{answer}
+\begin{answer} The partial derivative of $\bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)$ with respect to $\bm v_c$:
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm v_c} &= \frac{\partial}{\partial \bm v_c} \left[-\log\left(\frac{\exp(\bm u_{o}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)} \right)\right] \\
+&=\frac{\partial}{\partial \bm v_c} \left[- \left(\log\left(\exp(\bm u_{o}^\top \bm v_c)\right) - \log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)\right)\right] \\
+&=\frac{\partial}{\partial \bm v_c} \left[- \left(\exp(\bm u_{o}^\top \bm v_c) - \log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)\right)\right] \\
+&=\label{simplification}\frac{\partial}{\partial \bm v_c} \left[\log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)-\bm u_{o}^\top \bm v_c\right] \\
+&=\frac{1}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\bm u_w\right) - \bm u_o \\
+&= \sum_{w \in \text{Vocab}} \frac{\exp(\bm u_{w}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\bm u_w - \bm u_o \\
+&= \sum_{w \in \text{Vocab}} \hat{y}_w \bm u_w - \bm u_o \\
+&= \bm U \hat{\bm y} - \bm u_o \\
+&= \bm U (\hat{\bm y} - \bm y)
+\end{align}
+
+\hfill
+
+\color{red} Additional question answers:
+\begin{enumerate}[label=(\arabic*)]
+    \item Given that $\text{Vocab}=\{\text{Sub1} \cup \text{Sub2}\}$ (where both vocabulary subsets can overlap) the gradient is $0$ whenever a probability for any word $w_{\text{sub1}}\in \text{Sub1}$ is $0$, i.e., $\hat{y}_{w_{\text{sub1}}}=0$, and none of the words $w_{\text{sub2}}\in \text{Sub2}$ are embedded, i.e., are vectors with $0$ values $\bm u_w = \bm 0$, or if \textit{softmax} perfectly classifies some word $w\in\text{Vocab}$ (with probability of $1$) which has a non-zero embedding and also happens to be the output word $w=o$.
+    \item Assuming we subtract this gradient from $\bm v_c$, we make $\bm v_c$ more desirable because we update the center word embedding in such way that the loss function is minimized (because negative partial derivative values point towards minima) and, just to recall, the loss function shows how bad the probability is that the center word and the outside words fall within the same window, i.e., how far away from each other they are.
+\end{enumerate}
 
 \end{answer}
 \end{shaded}
@@ -208,7 +227,23 @@ Your answer should be one line. You may describe your answer in words.
 \item (5 points) Compute the partial derivatives of $\bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)$ with respect to each of the `outside' word vectors, $\bm u_w$'s. There will be two cases: when $w=o$, the true `outside' word vector, and $w \neq o$, for all other words. Please write your answer in terms of $\bm y$, $\hat{\bm y}$, and $\bm v_c$. In this subpart, you may use specific elements within these terms as well (such as $\bm y_1$, $\bm y_2$, $\dots$). Note that $\bm u_w$ is a vector while $\bm y_1, \bm y_2, \dots$ are scalars.
 
 \begin{shaded}
-\begin{answer}
+\begin{answer} Actually, if we're clever we could express the partial derivative with respect to full matrix $\bm U$, we just need to involve some outer products. Let's continue from Equation \ref{simplification}, just this time with respect to $\bm U$:
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm U} &= \frac{\partial}{\partial \bm U} \left[\log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)-\bm u_{o}^\top \bm v_c\right] \\
+&= \frac{1}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c) \frac{\partial \bm u_w^{\top}\bm v_c}{\partial \bm U} \right) - \frac{\partial \bm u_o^{\top}\bm v_c}{\partial \bm U} \\
+&= \sum_{w \in \text{Vocab}} \frac{\exp(\bm u_{w}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\frac{\partial \bm u_w^{\top}\bm v_c}{\partial \bm U} - \frac{\partial \bm u_o^{\top}\bm v_c}{\partial \bm U} \\
+&= \sum_{w \in \text{Vocab}} \hat y_w\frac{\partial \bm u_w^{\top}\bm v_c}{\partial \bm U} - \frac{\partial \bm u_o^{\top}\bm v_c}{\partial \bm U} \\
+&=\label{wrtU} \bm v_c \hat{\bm y}^{\top} - \bm v_c \bm y^{\top}
+\end{align}
+
+Like the task requires, we might as well write the derivatives with respect to single vectors $\bm u_w$, whenever $w\ne o$, and $\bm u_o$:
+
+\begin{equation}
+    \frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm u_w} = \begin{cases}
+        \hat{y}_w \bm v_c - \bm v_c  & \text{ if } w = o,\\
+        \hat{y}_w \bm v_c & \text{ otherwise}
+    \end{cases}
+\end{equation}
 
 \end{answer}
 \end{shaded}
@@ -217,7 +252,24 @@ Your answer should be one line. You may describe your answer in words.
 \item (1 point) Write down the partial derivative of $\bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)$ with respect to $\bm U$. Please break down your answer in terms of $\frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_1}$, $\frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_2}$, $\cdots$, $\frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_{|\text{Vocab}|}}$. The solution should be one or two lines long.
 
 \begin{shaded}
-\begin{answer}
+\begin{answer} We already arrived to the answer in Equation \ref{wrtU}. However, if we want an expanded case, here we go in its full matrix form:
+
+\begin{align}
+    \frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm U} &=
+    \begin{bmatrix}
+        \frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_1} & 
+        \frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_2} & 
+        \cdots & \frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_o} & \cdots &
+        \frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_{|\text{Vocab}|}}
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+        \hat{y}_1 \bm v_c & 
+        \hat{y}_2 \bm v_c & 
+        \cdots & \hat{y}_o \bm v_c - \bm v_c & \cdots &
+        \hat{y}_{|\text{Vocab}|} \bm v_c
+    \end{bmatrix} \\
+    &= \bm v_c \hat{\bm y}^{\top} - \bm v_c \bm y^{\top}
+\end{align}
 
 \end{answer}
 \end{shaded}
@@ -233,7 +285,9 @@ Please compute the derivative of $f(x)$ with respect to $x$, where $x$ is a scal
 
 \begin{shaded}
 \begin{answer}
-
+    \begin{equation}
+        \frac{\partial f(x)}{\partial x}=1(x>0)
+    \end{equation}
 \end{answer}
 \end{shaded}
 
@@ -249,7 +303,13 @@ Please compute the derivative of $\sigma(x)$ with respect to $x$, where $x$ is a
 
 \begin{shaded}
 \begin{answer}
-
+    \begin{align}
+        \frac{\partial \sigma(x)}{\partial x} &= e^{x}(e^x+1)^{-1}-e^{x}e^{x}(e^x+1)^{-2} \\
+        &= e^{x}\left(\frac{(e^x+1)}{(e^x+1)(e^x+1)} - \frac{e^{x}}{(e^x+1)(e^x+1)}\right) \\
+        &= \frac{e^{x}}{(e^x+1)(e^x+1)} \\
+        &= \frac{e^{x}}{e^x+1}\left(\frac{e^x+1}{e^x+1}-\frac{e^x}{e^x+1}\right) \\
+        &= \sigma(x)(1-\sigma(x))
+    \end{align}
 \end{answer}
 \end{shaded}
 
@@ -275,7 +335,40 @@ Caveat: So far we have looked at re-using quantities and approximating softmax w
 
 \begin{shaded}
 \begin{answer}
+\begin{enumerate}[label=(\roman*)]
+\item First, let's compute the partial derivative of $\bm J_{\text{neg-sample}}$ with respect to $\bm v_c$:
+\begin{align}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm v_c} &= -\frac{\sigma(\bm u_o^{\top}\bm v_c)(1-\sigma(\bm u_o^{\top}\bm v_c))\bm u_o}{\sigma(\bm u_o^{\top}\bm v_c)} + \sum_{s=1}^{K}\frac{\sigma(-\bm u_{w_s}^{\top}\bm v_c)(1-\sigma(-\bm u_{w_s}^{\top}\bm v_c))\bm u_{w_s}}{\sigma(-\bm u_{w_s}^{\top}\bm v_c)} \\
+    &= -(1-\sigma(\bm u_o^{\top}\bm v_c))\bm u_o + \sum_{s=1}^{K} (1-\sigma(-\bm u_{w_s}^{\top}\bm v_c))\bm u_{w_s}
+\end{align}
 
+The derivative computation with respect to $\bm u_o$, except we note that the summation involving negative samples can be treated as a constant:
+
+\begin{equation}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm u_o} = -(1-\sigma(\bm u_o^{\top}\bm v_c))\bm v_c
+\end{equation}
+
+Finally, the derivative with respect to $\bm u_{w_s}$ is also similar to the previous one, except his time it is the right summation term that can be treated as constant:
+
+\begin{equation}\label{wrtuwx}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm u_{w_s}} = (1-\sigma(-\bm u_{w_s}^{\top}\bm v_c))\bm v_c
+\end{equation}
+
+\item \color{red} We do not want to repeat calculations for the terms involving \textit{sigmoid} and inner product calculations. 
+
+\begin{equation}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm v_c} = -\bm{U}_{o, \{w_1, \dots, w_K\}}\left(\bm 1 - \sigma\left(\bm{U}_{o, \{w_1, \dots, w_K\}}^{\top}\bm v_c\right)\right)
+\end{equation}
+
+\begin{equation}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm{U}_{o, \{w_1, \dots, w_K\}}} = -\frac{\bm{U}_{o, \{w_1, \dots, w_K\}}}{|\bm{U}_{o, \{w_1, \dots, w_K\}}|}\odot\bm v_c \left(\bm 1 - \sigma\left(\bm{U}_{o, \{w_1, \dots, w_K\}}^{\top}\bm v_c\right)\right)^{\top}
+\end{equation}
+
+Note that $\frac{\bm{U}_{o, \{w_1, \dots, w_K\}}}{|\bm{U}_{o, \{w_1, \dots, w_K\}}|}$ operation is element-wise division and $|\bm{U}_{o, \{w_1, \dots, w_K\}}|$ is an element-wise \textit{absolute} operation. The obtained matrix is solely used to determine element signs.
+
+\item \textbf{Negative Sampling} loss is much more efficient because it samples a fixed number $K$ of vocabulary words that are involved in loss computation along with the true outside word, whereas \textbf{Softmax} involves normalizing the unnormalized probability meaning it has to go through all word vectors in the vocabulary (which can have $10^6$ - $10^7$ entries).
+
+\end{enumerate}
 \end{answer}
 \end{shaded}
 
@@ -292,8 +385,11 @@ for a sample $w_1, \ldots w_K$, where $\sigma(\cdot)$ is the sigmoid function.
 Compute the partial derivative of $\bm J_{\text{neg-sample}}$ with respect to a negative sample $\bm u_{w_s}$. Please write your answers in terms of the vectors $\bm v_c$ and $\bm u_{w_s}$, where $s \in [1, K]$. Hint: break up the sum in the loss function into two sums: a sum over all sampled words equal to $w_s$ and a sum over all sampled words not equal to $w_s$. Notation-wise, you may write `equal' and `not equal' conditions below the summation symbols, such as in Equation \ref{skip-gram}.
 
 \begin{shaded}
-\begin{answer}
-
+\begin{answer} We can reuse the Equation \ref{wrtuwx} but we need to remember that originally it was the sum of derivatives, just that other terms were regarded as constants. This time other terms may be dependent on our sampled word because negative sampling is with replacement.
+\begin{align}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm u_{w_s}} &= \sum_{\substack{w\in\text{Vocab} \\ w=w_s}}^{K}(1-\sigma(-\bm u_{w_s}^{\top}\bm v_c))\bm v_c \\
+    &= |\{w\in\text{Vocab}|w=w_s\}| (1-\sigma(-\bm u_{w_s}^{\top}\bm v_c))\bm v_c
+\end{align}
 \end{answer}
 \end{shaded}
 
@@ -316,7 +412,12 @@ Write your answers in terms of ${\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{
 
 \begin{shaded}
 \begin{answer}
-
+\begin{enumerate}[label=(\roman*)]
+\renewcommand{\theequation}{\roman{equation}}%
+\item ${\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm U}} = \sum_{\substack{-m\le j \le m \\ j\ne 0}} {\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{\partial \bm U}}$
+\item ${\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm v_c}} = \sum_{\substack{-m\le j \le m \\ j\ne 0}} {\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{\partial \bm v_c}}$
+\item ${\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm v_w}} = \bm 0$
+\end{enumerate}
 \end{answer}
 \end{shaded}
 
