@@ -15,7 +15,7 @@
 For every assignment, i.e., for directories `a1` through `a5`, there is coding and written parts. The `solutions.pdf` files are generated from latex directories where the provided templates were filled while completing the questions in `handout.pdf` files and the code.
 ### Assignments
 * [A1](a1): Exploring Word Vectors (_Done_)
-* [A2](a2): word2vec (_In Progress_)
+* [A2](a2): word2vec (_Done_)
 * [A3](a3): Dependency Parsing (_TBA_)
 * [A4](a4): Neural Machine Translation with RNNs and Analyzing NMT Systems (_TBA_)
 * [A5](a5): Self-Attention, Transformers, and Pretraining (_TBA_)
