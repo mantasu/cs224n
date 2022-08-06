@@ -233,7 +233,8 @@ $\mathbf{y}_w$ is a one-hot vector with a $1$ for the true outside word $o$, and
 &= \frac{1}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c) \frac{\partial \bm u_w^{\top}\bm v_c}{\partial \bm U} \right) - \frac{\partial \bm u_o^{\top}\bm v_c}{\partial \bm U} \\
 &= \sum_{w \in \text{Vocab}} \frac{\exp(\bm u_{w}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\frac{\partial \bm u_w^{\top}\bm v_c}{\partial \bm U} - \frac{\partial \bm u_o^{\top}\bm v_c}{\partial \bm U} \\
 &= \sum_{w \in \text{Vocab}} \hat y_w\frac{\partial \bm u_w^{\top}\bm v_c}{\partial \bm U} - \frac{\partial \bm u_o^{\top}\bm v_c}{\partial \bm U} \\
-&=\label{wrtU} \bm v_c \hat{\bm y}^{\top} - \bm v_c \bm y^{\top}
+&=\bm v_c \hat{\bm y}^{\top} - \bm v_c \bm y^{\top} \\
+&=\label{wrtU} \bm v_c (\hat{\bm y} - \bm y)^{\top}
 \end{align}
 
 Like the task requires, we might as well write the derivatives with respect to single vectors $\bm u_w$, whenever $w\ne o$, and $\bm u_o$:
@@ -268,7 +269,8 @@ Like the task requires, we might as well write the derivatives with respect to s
         \cdots & \hat{y}_o \bm v_c - \bm v_c & \cdots &
         \hat{y}_{|\text{Vocab}|} \bm v_c
     \end{bmatrix} \\
-    &= \bm v_c \hat{\bm y}^{\top} - \bm v_c \bm y^{\top}
+    &= \bm v_c \hat{\bm y}^{\top} - \bm v_c \bm y^{\top} \\
+    &= \bm v_c (\hat{\bm y} - \bm y)^{\top}
 \end{align}
 
 \end{answer}
@@ -467,6 +469,15 @@ Note: If you are using Windows and have trouble running the .sh scripts used in 
     
 \begin{shaded}
 \begin{answer}
+
+\begin{minipage}[h]{\linewidth}
+    \begin{center}
+   \vspace{-2ex}
+   \includegraphics[width=0.45\textwidth]{word_vectors.png}
+   \captionof{figure}{\color{red} A visualization for the word vectors in 2D space after training the skip-gram model on the Stanford Sentiment Treebank (SST) dataset}
+   \label{fig:word_vectors}
+   \end{center}
+\end{minipage} \color{red} {Figure \ref{fig:word_vectors} shows there is more variation in $x$ axis than in $y$ because of the different range scales. Some words cluster great, for instance, "amazing", "wonderful" and "great" are all adjectives similar to each other and it is also nice to see that words like "rain" and "snow" or "tea" and "coffee" are not far away from each other. However, most of the clusters have some outliers, for example, "boring" is part of the first mentioned cluster even though it is more like an antonym; some similar words like "king" and "queen" or "male" and "man" should be closer.}
 
 \end{answer}
 \end{shaded}

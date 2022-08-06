@@ -5,8 +5,13 @@ venv
 __pycache__
 .ipynb_checkpoints
 
+# Datasets and generated files
+a2/code/utils/datasets
+a2/code/saved_params*
+a2/code/saved_state*
+a2/code/word_vectors.png
+
 # TODO: complete tasks
-a2/code
 a3
 a4
 a5
