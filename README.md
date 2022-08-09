@@ -16,6 +16,6 @@ For every assignment, i.e., for directories `a1` through `a5`, there is coding a
 ### Assignments
 * [A1](a1): Exploring Word Vectors (_Done_)
 * [A2](a2): word2vec (_Done_)
-* [A3](a3): Dependency Parsing (_TBA_)
+* [A3](a3): Dependency Parsing (_Done_)
 * [A4](a4): Neural Machine Translation with RNNs and Analyzing NMT Systems (_TBA_)
 * [A5](a5): Self-Attention, Transformers, and Pretraining (_TBA_)

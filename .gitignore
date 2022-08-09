@@ -5,13 +5,17 @@ venv
 __pycache__
 .ipynb_checkpoints
 
-# Datasets and generated files
+# Assignment 2 generated
 a2/code/utils/datasets
 a2/code/saved_params*
 a2/code/saved_state*
 a2/code/word_vectors.png
+a2/code/assignment2.zip
+
+# Assignemnt 3 generated
+a3/code/results
+a3/code/assignment3.zip
 
 # TODO: complete tasks
-a3
 a4
 a5

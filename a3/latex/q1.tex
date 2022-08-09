@@ -1,0 +1,64 @@
+\titledquestion{Machine Learning \& Neural Networks}[8] 
+\begin{parts}
+
+    \part[4] Adam Optimizer\newline
+        Recall the standard Stochastic Gradient Descent update rule:
+        \alns{
+            	\btheta &\gets \btheta - \alpha \nabla_{\btheta} J_{\text{minibatch}}(\btheta)
+        }
+        where $\btheta$ is a vector containing all of the model parameters, $J$ is the loss function, $\nabla_{\btheta} J_{\text{minibatch}}(\btheta)$ is the gradient of the loss function with respect to the parameters on a minibatch of data, and $\alpha$ is the learning rate.
+        Adam Optimization\footnote{Kingma and Ba, 2015, \url{https://arxiv.org/pdf/1412.6980.pdf}} uses a more sophisticated update rule with two additional steps.\footnote{The actual Adam update uses a few additional tricks that are less important, but we won't worry about them here. If you want to learn more about it, you can take a look at: \url{http://cs231n.github.io/neural-networks-3/\#sgd}}
+            
+        \begin{subparts}
+            \subpart[2] First, Adam adopts a commonly used technique called {\it momentum}, which keeps track of $\bm$, a rolling average of the gradients:
+            \alns{
+            	\bm &\gets \beta_1\bm + (1 - \beta_1)\nabla_{\btheta} J_{\text{minibatch}}(\btheta) \\
+            	\btheta &\gets \btheta - \alpha \bm
+            }
+            where $\beta_1$ is a hyperparameter between 0 and 1 (often set to  0.9). Briefly explain in 2-4 sentences (you don't need to prove mathematically, just give an intuition) how using $\bm$ stops the updates from varying as much and why this low variance may be helpful to learning, overall.
+                
+            \ifans{Because the velocity is built over time, the noise in gradient descent gets averaged out. In other words, at every iteration there is an exponentially decaying average of negative weight gradients which causes the update step not to be instantaneous but rather depend by some amount on previous updates. If the loss curve (basin) is very narrow, there's a possibility to overshoot, but it may be a better idea to overshoot such sharp local minima to prevent overfitting. So momentum prefers flat minima which helps to generalize better.
+            }\newline
+                
+            \subpart[2] Adam extends the idea of {\it momentum} with the technique of {\it adaptive learning rates} by keeping track of  $\bv$, a rolling average of the magnitudes of the gradients:
+            \alns{
+            	\bm &\gets \beta_1\bm + (1 - \beta_1)\nabla_{\btheta} J_{\text{minibatch}}(\btheta) \\
+            	\bv &\gets \beta_2\bv + (1 - \beta_2) (\nabla_{\btheta} J_{\text{minibatch}}(\btheta) \odot \nabla_{\btheta} J_{\text{minibatch}}(\btheta)) \\
+            	\btheta &\gets \btheta - \alpha \bm / \sqrt{\bv}
+            }
+            where $\odot$ and $/$ denote elementwise multiplication and division (so $\bz \odot \bz$ is elementwise squaring) and $\beta_2$ is a hyperparameter between 0 and 1 (often set to  0.99). Since Adam divides the update by $\sqrt{\bv}$, which of the model parameters will get larger updates?  Why might this help with learning?
+            
+            \ifans{Model parameters with small gradients will get larger updates because, if an accumulated square norm is very small, then dividing learning rate by what is small will cause larger values in corresponding gradient axes, thus larger step sizes. This is useful for learning because sometimes the gradient descent might stuck performing barely noticeable updates in directions with tiny gradient values. It should also be noted that big gradients result in smaller step sizes thus the square norm normalizes the gradient step direction-wise.
+            }\newline
+                
+        \end{subparts}
+        
+        
+    \part[4] 
+        Dropout\footnote{Srivastava et al., 2014, \url{https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf}} is a regularization technique. During training, dropout randomly sets units in the hidden layer $\bh$ to zero with probability $p_{\text{drop}}$ (dropping different units each minibatch), and then multiplies $\bh$ by a constant $\gamma$. We can write this as:
+        \alns{
+        	\bh_{\text{drop}} = \gamma \bd \odot \bh
+        }
+        where $\bd \in \{0, 1\}^{D_h}$ ($D_h$ is the size of $\bh$)
+        is a mask vector where each entry is 0 with probability $p_{\text{drop}}$ and 1 with probability $(1 - p_{\text{drop}})$. $\gamma$ is chosen such that the expected value of $\bh_{\text{drop}}$ is $\bh$:
+        \alns{
+        	\mathbb{E}_{p_{\text{drop}}}[\bh_\text{drop}]_i = h_i \text{\phantom{aaaa}}
+        }
+        for all $i \in \{1,\dots,D_h\}$. 
+        \begin{subparts}
+            \subpart[2]
+            What must $\gamma$ equal in terms of $p_{\text{drop}}$? Briefly justify your answer or show your math derivation using the equations given above.\\
+            \ifans{We need to scale outputs by $\gamma$ to ensure that the scale of outputs at test time is identical to the expected outputs at training time. If we don't multiply by $\gamma$, we can see that during training the expected value of any output entry is:
+            $$\mathbb{E}_{p_{\text{drop}}}[\bh_\text{drop}]_i=p_{\text{drop}}0 + (1 - p_{\text{drop}})h_i=(1 - p_{\text{drop}})h_i$$
+            
+            Thus, during testing when nothing is dropped we'd have to multiply the output vector by $(1 - p_{\text{drop}})$ to match the expectation during training. To keep the testing unchanged, we can just apply \textit{inverse dropout} and multiply the output during training by the inverse of the value we'd otherwise multiply during prediction. We can derive that:
+            
+            $$\gamma=\frac{1}{1 - p_{\text{drop}}}$$
+            }\newline
+        
+            \subpart[2] Why should dropout be applied during training? Why should dropout \textbf{NOT} be applied during evaluation? (Hint: it may help to look at the paper linked above in the write-up.) 
+            \ifans{Dropout increases network robustness making it not to rely too much on some specific neurons. During evaluation we want to use all the information from the trained neurons - it can be interpreted as evaluating an averaged prediction across the exponentially-sized ensemble of all all the possible binary masks (sub-networks).
+            }\newline
+     
+        \end{subparts}
+\end{parts}
