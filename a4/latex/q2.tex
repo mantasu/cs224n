@@ -1,0 +1,91 @@
+\graphicspath{ {images/} }
+
+\titledquestion{Analyzing NMT Systems}[33]
+
+\begin{parts}
+    \part[3] In part 1, we modeled our NMT problem at a subword-level. That is, given a sentence in the source language, we looked up subword components from an embeddings matrix. Alternatively, we could have modeled the NMT problem at the word-level, by looking up whole words from the embeddings matrix. Why might it be important to model our Cherokee-to-English NMT problem at the subword-level vs. the whole word-level? (Hint: Cherokee is a polysynthetic language.)
+    
+    \part[3] Transliteration is the representation of letters or words in the characters of another alphabet or script based on phonetic similarity. For example, the transliteration of {\cherokeefam Ꮳ⁠Ꮕ⁠Ꮤ⁠Ꮝ⁠Ꭺ} (which translates to "do you know") from Cherokee letters to Latin script is tsanvtasgo. In the Cherokee language, "ts-" is a common prefix in many words, but the Cherokee character {\cherokeefam Ꮳ} is "tsa". Using this example, explain why when modeling our Cherokee-to-English NMT problem at the subword-level, training on transliterated Cherokee text may improve performance over training on original Cherokee characters.(Hint: A prefix is a morpheme.)
+
+    \part[3] One challenge of training successful NMT models is lack of language data, particularly for resource-scarce languages like Cherokee. One way of addressing this challenge is with multilingual training, where we train our NMT on multiple languages (including Cherokee). You can read more about multilingual training here:\newline \url{https://ai.googleblog.com/2019/10/exploring-massively-multilingual.html}.\newline How does multilingual training  help in improving NMT performance with low-resource languages?
+
+    \part[6] Here we present a series of errors we found in the outputs of our NMT model (which is the same as the one you just trained). For each example of a reference (i.e., `gold') English translation, and NMT (i.e., `model') English translation, please:
+    
+    \begin{enumerate}
+        \item Identify the error in the NMT translation.
+        \item Provide possible reason(s) why the model may have made the error (either due to a specific linguistic construct or a specific model limitation).
+        \item Describe one possible way we might alter the NMT system to fix the observed error. There are more than one possible fixes for an error. For example, it could be tweaking the size of the hidden layers or changing the attention mechanism.
+    \end{enumerate}
+    
+    Below are the translations that you should analyze as described above. Only analyze the underlined error in each sentence. Rest assured that you don't need to know Cherokee to answer these questions. You just need to know English! If, however, you would like additional color on the source sentences, feel free to use a resource like \url{https://www.cherokeedictionary.net/} to look up words.
+
+    \begin{subparts}
+        \subpart[2]
+        \textbf{Source Sentence:} \textit{{\cherokeefam ᏄᏩᏁᎰᎾ ᏕᎪᏣᎳᎩᏍᎬ, ᎯᎠ ᏄᏍᏕ ᏚᏏᎳᏛ: ᏧᏓᎴᏅᏓ ᏕᎪᏒᏍᎦ ᏧᏏᎳᏛᏙᏗ ᎠᏍᏓ ᎧᏅᏂᏍᎩ.        }}\newline
+        \textbf{Reference Translation:} \textit{When \underline{she} was finished ripping things out, \underline{her} web looked something like this: }\newline
+        \textbf{NMT Translation:} \textit{When \underline{it} was gone out of the web, \underline{he} said the web in the web.}
+        
+        \subpart[2]
+        \textbf{Source Translation}: \textit{{\cherokeefam ᎤᏍᏗ ᎢᏈᎬᎢ, ᎦᏙᏊᎢ? ᎤᏓᏛᏛᏁᎢ ᎤᏍᏗ ᎠᏧᏣ.}}\newline
+        \textbf{Reference Translation}: \textit{What's wrong \underline{little} tree? the boy asked.}\newline
+        \textbf{NMT Translation}: \textit{ The \underline{little little little little little} tree? asked him.}
+        
+        \subpart[2] 
+        \textbf{Source Sentence:} \textit{{\cherokeefam “ᎤᏓᎸᏉᏗ ᏂᎨᏒᎾ,” ᎤᏛᏁ ᎰᎻ.}}\newline
+        \textbf{Reference Translation:} \textit{\underline{“ ‘Humble,’ ”} said Mr. Zuckerman}\newline
+        \textbf{NMT Translation:} \textit{\underline{“It’s not a lot,”} said Mr. Zuckerman.}
+    \end{subparts}
+    
+    \part[4] Now it is time to explore the outputs of the model that you have trained! The test-set translations your model produced in question \texttt{1-i} should be located in \texttt{outputs/test\_outputs.txt}. 
+    \begin{subparts}
+        \subpart[2] Find a line where the predicted translation is correct for a long (4 or 5 word) sequence of words. Check the training target file (English); does the training file contain that string (almost) verbatim? If so or if not, what does this say about what the MT system learned to do?
+        
+        \subpart[2] Find a line where the predicted translation starts off correct for a long (4 or 5 word) sequence of words, but then diverges (where the latter part of the sentence seems totally unrelated). What does this say about the model's decoding behavior?
+    \end{subparts}
+    
+    \part[14] BLEU score is the most commonly used automatic evaluation metric for NMT systems. It is usually calculated across the entire test set, but here we will consider BLEU defined for a single example.\footnote{This definition of sentence-level BLEU score matches the \texttt{sentence\_bleu()} function in the \texttt{nltk} Python package. Note that the NLTK function is sensitive to capitalization. In this question, all text is lowercased, so capitalization is irrelevant. \\ \url{http://www.nltk.org/api/nltk.translate.html\#nltk.translate.bleu_score.sentence_bleu}
+    } 
+    Suppose we have a source sentence $\bs$, a set of $k$ reference translations $\br_1,\dots,\br_k$, and a candidate translation $\bc$. To compute the BLEU score of $\bc$, we first compute the \textit{modified $n$-gram precision} $p_n$ of $\bc$, for each of $n=1,2,3,4$, where $n$ is the $n$ in \href{https://en.wikipedia.org/wiki/N-gram}{n-gram}:
+    \begin{align}
+        p_n = \frac{ \displaystyle \sum_{\text{ngram} \in \bc} \min \bigg( \max_{i=1,\dots,k} \text{Count}_{\br_i}(\text{ngram}), \enspace \text{Count}_{\bc}(\text{ngram}) \bigg) }{\displaystyle \sum_{\text{ngram}\in \bc} \text{Count}_{\bc}(\text{ngram})}
+    \end{align}
+     Here, for each of the $n$-grams that appear in the candidate translation $\bc$, we count the maximum number of times it appears in any one reference translation, capped by the number of times it appears in $\bc$ (this is the numerator). We divide this by the number of $n$-grams in $\bc$ (denominator). \newline 
+
+    Next, we compute the \textit{brevity penalty} BP. Let $len(c)$ be the length of $\bc$ and let $len(r)$ be the length of the reference translation that is closest to $len(c)$ (in the case of two equally-close reference translation lengths, choose $len(r)$ as the shorter one). 
+    \begin{align}
+        BP = 
+        \begin{cases}
+            1 & \text{if } len(c) \ge len(r) \\
+            \exp \big( 1 - \frac{len(r)}{len(c)} \big) & \text{otherwise}
+        \end{cases}
+    \end{align}
+    Lastly, the BLEU score for candidate $\bc$ with respect to $\br_1,\dots,\br_k$ is:
+    \begin{align}
+        BLEU = BP \times \exp \Big( \sum_{n=1}^4 \lambda_n \log p_n \Big)
+    \end{align}
+    where $\lambda_1,\lambda_2,\lambda_3,\lambda_4$ are weights that sum to 1. The $\log$ here is natural log.
+    \newline
+    \begin{subparts}
+        \subpart[5] Please consider this example\footnote{Due to data availability, many Cherokee sentences with English reference translations are from the Bible. This example is John 1:5. The two reference translations are from the New International Version and the New King James Version translations of the Bible.}: \newline
+        Source Sentence $\bs$: \textbf{{\cherokeefam ᎠᎴ ᎾᏍᎩ ᎢᎦ-ᎦᏘᏍᏗᏍᎩ ᎤᎵᏏᎬ ᏚᎸᏌᏕᎢ ᎤᎵᏏᎩᏃ ᎥᏝ ᏱᏚᏓᏂᎸᏤᎢ}} 
+        \newline
+        Reference Translation $\br_1$: \textit{the light shines in the darkness and the darkness has not overcome it}
+        \newline
+        Reference Translation $\br_2$: \textit{and the light shines in the darkness and the darkness did not comprehend it}
+        
+        NMT Translation $\bc_1$: and the light shines in the darkness and the darkness can not comprehend
+        
+        NMT Translation $\bc_2$: the light shines the darkness has not in the darkness and the trials
+        
+        Please compute the BLEU scores for $\bc_1$ and $\bc_2$. Let $\lambda_i=0.5$ for $i\in\{1,2\}$ and $\lambda_i=0$ for $i\in\{3,4\}$ (\textbf{this means we ignore 3-grams and 4-grams}, i.e., don't compute $p_3$ or $p_4$). When computing BLEU scores, show your working (i.e., show your computed values for $p_1$, $p_2$, $len(c)$, $len(r)$ and $BP$). Note that the BLEU scores can be expressed between 0 and 1 or between 0 and 100. The code is using the 0 to 100 scale while in this question we are using the \textbf{0 to 1} scale.
+        \newline
+        
+        Which of the two NMT translations is considered the better translation according to the BLEU Score? Do you agree that it is the better translation?
+        
+        \subpart[5] Our hard drive was corrupted and we lost Reference Translation $\br_2$. Please recompute BLEU scores for $\bc_1$ and $\bc_2$, this time with respect to $\br_1$ only. Which of the two NMT translations now receives the higher BLEU score? Do you agree that it is the better translation?
+        
+        \subpart[2] Due to data availability, NMT systems are often evaluated with respect to only a single reference translation. Please explain (in a few sentences) why this may be problematic. In your explanation, discuss how the BLEU score metric assesses the quality of NMT translations when there are multiple reference transitions versus a single reference translation.
+        
+        \subpart[2] List two advantages and two disadvantages of BLEU, compared to human evaluation, as an evaluation metric for Machine Translation.
+    \end{subparts}
+\end{parts}
