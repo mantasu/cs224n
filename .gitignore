@@ -16,5 +16,16 @@ a2/code/assignment2.zip
 a3/code/results
 a3/code/assignment3.zip
 
+# Assignment 4 generated
+a4/code/src.model
+a4/code/src.vocab
+a4/code/tgt.model
+a4/code/tgt.vocab
+a4/code/vocab.json
+a4/code/model.bin
+a4/code/model.bin.optim
+a4/code/runs
+a4/code/assignment4.zip
+
 # TODO: complete tasks
 a5

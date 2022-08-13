@@ -81,8 +81,8 @@ class NMT(nn.Module):
         self.decoder = nn.LSTMCell(embed_size + hidden_size, hidden_size)
         self.h_projection = nn.Linear(2*hidden_size, hidden_size, bias=False)
         self.c_projection = nn.Linear(2*hidden_size, hidden_size, bias=False)
-        self.att_projection = nn.Linear(3*hidden_size, hidden_size, bias=False)
-        self.combined_output_projection = nn.Linear(hidden_size, 3*hidden_size, bias=False)
+        self.att_projection = nn.Linear(2*hidden_size, hidden_size, bias=False)
+        self.combined_output_projection = nn.Linear(3*hidden_size, hidden_size, bias=False)
         self.target_vocab_projection = nn.Linear(hidden_size, len(vocab.tgt), bias=False)
         self.dropout = nn.Dropout(dropout_rate)
 
@@ -194,19 +194,19 @@ class NMT(nn.Module):
 
     def decode(self, enc_hiddens: torch.Tensor, enc_masks: torch.Tensor,
                 dec_init_state: Tuple[torch.Tensor, torch.Tensor], target_padded: torch.Tensor) -> torch.Tensor:
-        # """Compute combined output vectors for a batch.
+        """Compute combined output vectors for a batch.
 
-        # @param enc_hiddens (Tensor): Hidden states (b, src_len, h*2), where
-        #                              b = batch size, src_len = maximum source sentence length, h = hidden size.
-        # @param enc_masks (Tensor): Tensor of sentence masks (b, src_len), where
-        #                              b = batch size, src_len = maximum source sentence length.
-        # @param dec_init_state (tuple(Tensor, Tensor)): Initial state and cell for decoder
-        # @param target_padded (Tensor): Gold-standard padded target sentences (tgt_len, b), where
-        #                                tgt_len = maximum target sentence length, b = batch size. 
+        @param enc_hiddens (Tensor): Hidden states (b, src_len, h*2), where
+                                     b = batch size, src_len = maximum source sentence length, h = hidden size.
+        @param enc_masks (Tensor): Tensor of sentence masks (b, src_len), where
+                                     b = batch size, src_len = maximum source sentence length.
+        @param dec_init_state (tuple(Tensor, Tensor)): Initial state and cell for decoder
+        @param target_padded (Tensor): Gold-standard padded target sentences (tgt_len, b), where
+                                       tgt_len = maximum target sentence length, b = batch size. 
 
-        # @returns combined_outputs (Tensor): combined output tensor  (tgt_len, b,  h), where
-        #                                 tgt_len = maximum target sentence length, b = batch_size,  h = hidden size
-        # """
+        @returns combined_outputs (Tensor): combined output tensor  (tgt_len, b,  h), where
+                                        tgt_len = maximum target sentence length, b = batch_size,  h = hidden size
+        """
         # Chop off the <END> token for max length sentences.
         target_padded = target_padded[:-1]
 
@@ -256,7 +256,20 @@ class NMT(nn.Module):
         ###     Tensor Stacking:
         ###         https://pytorch.org/docs/stable/torch.html#torch.stack
 
+        # Apply the attention projection, compute the input matrix        
+        enc_hiddens_proj = self.att_projection(enc_hiddens)
+        Y = self.model_embeddings.target(target_padded.T).permute(1, 0, 2)
 
+        for Y_t in torch.split(Y, 1):
+            # Perform time-steps
+            Y_t = Y_t.squeeze()
+            Ybar_t = torch.cat([Y_t, o_prev], dim=1)
+            dec_state, o_t, _ = self.step(Ybar_t, dec_state, enc_hiddens, enc_hiddens_proj, enc_masks)
+            combined_outputs.append(o_t)
+            o_prev = o_t
+        
+        # Stack combined outputs into one 3D tensor
+        combined_outputs = torch.stack(combined_outputs)
 
         ### END YOUR CODE
 
@@ -315,8 +328,10 @@ class NMT(nn.Module):
         ###     Tensor Squeeze:
         ###         https://pytorch.org/docs/stable/torch.html#torch.squeeze
 
-
-
+        # Compute new decoder state and attention scores
+        dec_state = self.decoder(Ybar_t, dec_state)
+        dec_hidden, dec_cell = dec_state
+        e_t = torch.bmm(enc_hiddens_proj, dec_hidden.unsqueeze(-1)).squeeze(-1)
 
         ### END YOUR CODE
 
@@ -352,9 +367,16 @@ class NMT(nn.Module):
         ###     Tanh:
         ###         https://pytorch.org/docs/stable/torch.html#torch.tanh
 
+        # Compute the attention impact
+        alpha_t = F.softmax(e_t, dim=1)
+        a_t = torch.bmm(alpha_t.unsqueeze(1), enc_hiddens).squeeze(1)
 
+        # Combine with dec_hidden and project
+        U_t = torch.cat([dec_hidden, a_t], dim=1)
+        V_t = self.combined_output_projection(U_t)
 
-
+        # Compute the t'th batch output
+        O_t = self.dropout(torch.tanh(V_t))
 
         ### END YOUR CODE
 
