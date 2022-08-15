@@ -134,6 +134,12 @@ Note that this virtual environment \textbf{will not} be needed on the VM.\newlin
     
     First explain (in around three sentences) what effect the masks have on the entire attention computation.
     Then explain (in one or two sentences) why it is necessary to use the masks in this way.
+    
+    \ifans{\begin{enumerate}
+        \item \textbf{What effect: }for every batch, those attention scores which have corresponding zero-padded embeddings are set to $-\infty$. This way, during the calculation of \textit{attention distributions} $\b\alpha_t$, the probabilities are calculated over scores with corresponding non-padded words whereas the scores with corresponding padded words are negligible. Finally, during the calculation of \textit{attention outputs} $A_t$, for every batch only the addition of those hidden states matter which are not multiplied by a probability close to $0$.
+        \item \textbf{Why necessary: }using masks in this way is an efficient way to determine the true \textit{attention distribution} that only involves the non-padded entries. Involving padded entries would result in false \textit{attention} representation.
+    \end{enumerate}}
+
 \end{parts}
 
 Now it's time to get things running! Execute the following to generate the necessary vocab file:
@@ -202,10 +208,17 @@ sh run.sh test
 \end{lstlisting}
     Please report the model's corpus BLEU Score. It should be larger than 10.
     
+    \ifans{Corpus BLEU: 12.46717351294529 (with early stopping after 6 epochs)
+    }
+    
     \part[4] (written) In class, we learned about dot product attention, multiplicative attention, and additive attention.  As a reminder, dot product attention is $\be_{t,i} = \bs_t^T\bh_i$, multiplicative attention is $\be_{t,i} = \bs_t^T\bW\bh_i$, and additive attention is $\be_{t,i} = \bv^T \text{tanh}(\bW_1\bh_i + \bW_2\bs_t)$.
     
     \begin{subparts}
     \subpart[2] Explain one advantage and one disadvantage of \textit{dot product attention} compared to multiplicative attention.
     \subpart[2] Explain one advantage and one disadvantage of \textit{additive attention} compared to multiplicative attention.
     \end{subparts}
+    \ifans{\begin{enumerate}[i.]
+    \item An advantage of \textit{dot product attention} compared to \textit{multiplicative attention} is that it does not have any learnable parameters and it is a vector dot product, meaning it is fast to compute. A disadvantage, however, is that a simple dot product is not sufficient to capture what parts of $\mathbf{s}_t$ and what parts of $\mathbf{h}_t$ to pay attention to because it is a simple piece-wise similarity.
+    \item An advantage of \textit{additive attention} compared to \textit{multiplicative attention} is that similarity is computed in a non-linearly transformed space where both $\mathbf{h}_i$ and $\mathbf{s}_t$ have their own learnable weights. This adds more flexibility in terms of parameter space. A disadvantage is that the computation is very expensive.
+    \end{enumerate}}
 \end{parts}
