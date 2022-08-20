@@ -28,5 +28,16 @@ a4/code/runs
 a4/code/outputs/test_outputs.txt
 a4/code/assignment4.zip
 
-# TODO: Assignment 5
-a5/code
+# Assignment 5 generated
+a5/code/vanilla.model.params
+a5/code/vanilla.nopretrain.dev.predictions
+a5/code/vanilla.nopretrain.test.predictions
+a5/code/vanilla.pretrain.params
+a5/code/vanilla.finetune.params
+a5/code/vanilla.pretrain.dev.predictions
+a5/code/vanilla.pretrain.test.predictions
+a5/code/synthesizer.pretrain.params
+a5/code/synthesizer.finetune.params
+a5/code/synthesizer.pretrain.dev.predictions
+a5/code/synthesizer.pretrain.test.predictions
+a5/code/assignment5_submission.zip

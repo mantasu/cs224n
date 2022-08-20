@@ -98,7 +98,10 @@ python src/run.py evaluate vanilla wiki.txt  \
 
 Training will take less than 10 minutes (on Azure).  Report your model's accuracy on the dev set (as printed by the second command above). Don't be surprised if it is well below 10\%; we will be digging into why in Part 3. As a reference point, we want to also calculate the accuracy the model would have achieved if it had just predicted ``London'' as the birth place for everyone in the dev set. Fill in \texttt{london\_baseline.py} to calculate the accuracy of that approach and report your result in your write-up. You should be able to leverage existing code such that the file is only a few lines long. 
 \begin{answer}
-    Please provide the calculated accuracy here.
+    \begin{itemize}
+        \item \textbf{Model's accuracy}: Correct: 8.0 out of 500.0: 1.6\%
+        \item \textbf{If only ``London''}: Correct: 25.0 out of 500.0: 5.0\%
+    \end{itemize}
 \end{answer}
 
 \part[10]\textbf{Define a \textit{span corruption} function for pretraining.}\\
@@ -150,10 +153,8 @@ python src/run.py evaluate vanilla wiki.txt  \
 Report the accuracy on the dev set (printed by the third command above). We expect the dev accuracy will be at least 10\%, and will expect a similar accuracy on the held out test set.
 
 \begin{answer}
-    Please provide the calculated accuracy here.
+    \textbf{dev accuracy}: Correct: 77.0 out of 500.0: 15.4\%
 \end{answer}
-
-\pagebreak 
 
 \part[10] \textbf{Research! Write and try out the \textit{synthesizer} variant (Budget 2 hours for pretraining!)}\\
 We'll now go to changing the Transformer architecture itself -- specifically, the self-attention module.
@@ -222,7 +223,10 @@ Report the accuracy of your synthesizer attention model on birthplace prediction
 \subpart[2] Why might the \textit{synthesizer} self-attention not be able to do, in a single layer, what the key-query-value self-attention can do?
 
 \begin{answer}
-    Please provide your answer here.
+    \begin{enumerate}
+        \item \textbf{dev accuracy}: Correct: 46.0 out of 500.0: 9.2\%
+        \item Synthesizer attention is unable to do what the causal attention can do because it does not extract keys and queries from the input - it estimates that by remapping input to a lower dimensional space for each head. In other words, it is more difficult to represent context because for every word in sequence, that word is unable to choose which parts to pay attention to in the rest of the sequence (because it does not have access to their keys). Thus the synthesizer may not be able to capture the relevance between word pairs.
+    \end{enumerate}
 \end{answer}
 
 \end{subparts}
@@ -235,7 +239,7 @@ Report the accuracy of your synthesizer attention model on birthplace prediction
 \part[1] Succinctly explain why the pretrained (vanilla) model was able to achieve an accuracy of above 10\%, whereas the non-pretrained model was not.
 
 \begin{answer}
-    Please provide your succinct explanation here.
+    A pretrained model was able to learn the relationships between words. It learned the how parts of a sentence depend on one another whereas only the finetuned model was trained to extract certain parts of the sentence without really "knowing" how they relate to given input. It is also worth to note that the dataset for the pretraining was a lot larger thus the model could have "memorised" the relevant parts of the questions.
 \end{answer}
 
 \part[2] Take a look at some of the correct predictions of the pretrain+finetuned vanilla model, as well as some of the errors.
@@ -244,7 +248,10 @@ Consider the implications of this for user-facing systems that involve pretraine
 Come up with two \textbf{distinct} reasons why this model behavior (i.e. unable to tell whether it's retrieved or made up) may cause concern for such applications, and an example for each reason.
 
 \begin{answer}
-    Please provide your reasons here.
+    \begin{enumerate}
+        \item Such behaviour may cause users to refer to false information in their work unintentionally. For instance, if the user wants to mention a birthplace of a famous person, they might provide a wrong place if the model does not provide true information. This could affect user's work quality.
+        \item Such behaviour may cause users to spread false information around the subject. For example, if the user learns something about a famous person, such as their birthplace, from a model that retrieves information, but that information is false, the person might unintentionally spread false facts about famous people and others may believe it. This could cause confusion and arguments in society.
+    \end{enumerate}
 \end{answer}
 
 \part[2] If your model didn't see a person's name at pretraining time, and that person was not seen at fine-tuning time either, it is not possible for it to have ``learned'' where they lived.
@@ -253,7 +260,7 @@ Concisely describe a strategy your model might take for predicting a birth place
 (You do not need to submit the same answer for 3c as for 3b.)
 
 \begin{answer}
-    Please provide your reasons here.
+    The model, given a name, will try to maximize its relevance with its parameters (it will look for information that belongs to people with similar names to the provided name). If there is a typo in the name, then such functionality is desirable, however, if a new name is only similar to one of the names the model has learnt about, then retrieved information will be false and might cause quality and social concerns as mentioned in \textit{3b}.
 \end{answer}
 
 \end{parts}
