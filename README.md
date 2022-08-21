@@ -6,8 +6,6 @@
 
 These are my solutions for the **CS224n** course assignments offered by _Stanford University_ (Winter 2022). Written questions are explained in detail, the code is brief and commented (see examples below). From what I investigated, these should be the most explained solutions. Please also check my other [repository](https://github.com/mantasu/cs231n) for _shortest_ solutions for **CS231n**.
 
-> Note: Python 3.8 or newer should be used
-
 ## Main sources (official)
 * [**Course page**](http://web.stanford.edu/class/cs224n/index.html)
 * [**Assignments**](http://web.stanford.edu/class/cs224n/index.html#schedule)
@@ -23,6 +21,8 @@ $ pip install -r requirements.txt
 ```
 
 You can install everything with **conda** too (see [this](https://stackoverflow.com/questions/51042589/conda-version-pip-install-r-requirements-txt-target-lib)). For code that requires **Azure** _Virtual Machines_, I was able to run everything successfully on **Google Colab** with a free account.
+
+> Note: Python 3.8 or newer should be used
 
 ## Solutions
 ### Structure
