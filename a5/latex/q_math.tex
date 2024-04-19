@@ -58,21 +58,21 @@ Using the basis vectors $\{a_1, a_2, \ldots, a_m\}$, construct a matrix $M$ such
 \textbf{Hint:} Given that the vectors $\{a_1, a_2, \ldots, a_m\}$ are both \textit{orthogonal} and \textit{form a basis} for $v_a$, we know that there exist some $c_1, c_2, \ldots, c_m$ such that $v_a = c_1 a_1 + c_2 a_2 + \cdots + c_m a_m$. Can you create a vector of these weights $c$? 
 
 \begin{answer}
-        Assume that $A$ is a matrix of concatenated basis vectors $\{\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_m\}$ and $B$ is a matrix of concatenated basis vectors $\{\mathbf{b}_1, \mathbf{b}_2, \ldots, \mathbf{b}_p\}.$. Linear combinations of vectors $\mathbf{v}_a$ and $\mathbf{v}_b$ can then be expressed as:
+        Assume that $A\in\mathbb{R}^{d\times m}$ is a matrix of concatenated basis vectors $\{\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_m\}$ and $B\in\mathbb{R}^{d\times p}$ is a matrix of concatenated basis vectors $\{\mathbf{b}_1, \mathbf{b}_2, \ldots, \mathbf{b}_p\}$. Linear combinations of vectors $\mathbf{v}_a$ and $\mathbf{v}_b$ can then be expressed as:
         
         $$\mathbf{v}_a = c_1 \mathbf{a}_1 + c_2 \mathbf{a}_2 + \cdots + c_m \mathbf{a}_m=A\mathbf{c}$$
-        $$\mathbf{v}_b = d_1 \mathbf{b}_1 + d_2 \mathbf{b}_2 + \cdots + d_p \mathbf{b}_p=B\mathbf{d}$$
+        $$\mathbf{v}_b = c'_1 \mathbf{b}_1 + c'_2 \mathbf{b}_2 + \cdots + c'_p \mathbf{b}_p=B\mathbf{c'}$$
         
         We need to construct such $M$ which, when multiplied with $\mathbf{v}_b$, produces $\mathbf{0}$ and, when multiplied with $\mathbf{v}_a$, produces the same vector (in terms of its own space):
         
         $$M\mathbf{s}=\mathbf{v}_a$$
         $$M\mathbf{v}_a + M\mathbf{v}_b=\mathbf{v}_a$$
         
-        It is easy to see that, since $\mathbf{a}_j^{\top}\mathbf{b}_{k}=0$ for all $j,k$, $A^{\top}B=0$. And, since $\mathbf{a}_i^{\top}\mathbf{a}_{j}=0$ whenever $j\ne i$ and since $\mathbf{a}_i^{\top}\mathbf{a}_{j}=1$ whenever $j=i$ because vectors are normalized, $A^{\top}A=I$. If we substitute $M$ with $A^{\top}$:
+        It is easy to see that, since $\mathbf{a}_j^{\top}\mathbf{b}_{k}=0$ for all $j,k$, $A^{\top}B=\mathbf{0}$. And, since $\mathbf{a}_i^{\top}\mathbf{a}_{j}=0$ whenever $j\ne i$ (orhtogonal) and since $\mathbf{a}_i^{\top}\mathbf{a}_{j}=1$ whenever $j=i$ (norm 1), $A^{\top}A=I$. If we substitute $M$ with $AA^{\top}$, $\mathbf{v}_a$ with $A\mathbf{c}$, and $\mathbf{v}_b$ with $B\mathbf{c'}$:
         
-        $$A^{\top}A\mathbf{c}+A^{\top}B\mathbf{d}=I\mathbf{c}+0\mathbf{d}=\mathbf{c}$$
+        $$AA^{\top}A\mathbf{c}+AA^{\top}B\mathbf{c'}=AI\mathbf{c}+A\mathbf{0}\mathbf{c'}=A\mathbf{c}=\mathbf{v}_a$$
         
-        And we know that in terms of $\mathbb{R}^{d}$ (not in terms of $A$ and $B$), $\mathbf{v}_a$ is just a collection of constants $\mathbf{c}$. Thus $M=A^{\top}$
+        Thus, in terms of $\mathbb{R}^{d}$, $M=AA^{\top}$ because $M\in\mathbb{R}^{d \times d}$ (however, in terms of $A$, $\mathbf{v}_a$ would just be $\mathbf{c}$, in which case $M=A^{\top}$).
 \end{answer}
 
 \subpart[4] As before, let $v_a$ and $v_b$ be two value vectors corresponding to key vectors $k_a$ and $k_b$, respectively.
